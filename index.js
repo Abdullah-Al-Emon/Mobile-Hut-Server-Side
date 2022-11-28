@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -34,27 +34,35 @@ function verifyJWT(req, res, next)
     })
 }
 
-async function run(){
-    try{
+async function run()
+{
+    try {
         const categoryCollection = client.db('mobileHut').collection('category')
         const productsCollection = client.db('mobileHut').collection('products')
         const usersCollection = client.db('mobileHut').collection('users')
+        const advertiseCollection = client.db('mobileHut').collection('advertise')
+        const bookingsCollection = client.db('mobileHut').collection('bookings')
 
-        app.get('/category', async(req, res) => {
+        app.get('/category', async (req, res) =>
+        {
             const query = {};
             const categories = await categoryCollection.find(query).toArray()
             res.send(categories)
         })
 
-        app.get('/product/:id', async (req, res) => {
-
+        app.get('/category/:id', async (req, res) =>
+        {
+            const id = req.params.id;
+            const query = { categoryId: id };
+            const product = await productsCollection.find(query).toArray();
+            res.send(product)
         })
 
 
-        app.get('/product', async (req, res) =>
+        app.get('/product', verifyJWT, async (req, res) =>
         {
             const email = req.query.email;
-            const query = {sellerEmail: email }
+            const query = { sellerEmail: email }
             const user = await productsCollection.find(query).toArray();
             res.send(user)
         })
@@ -66,6 +74,36 @@ async function run(){
             res.send(result)
         })
 
+        app.delete('/product/:id', async (req, res) =>
+        {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.deleteOne(query);
+            res.send(result)
+        })
+
+        app.post('/booking', async (req, res) =>
+        {
+            const user = req.body;
+            const result = await bookingsCollection.insertOne(user);
+            res.send(result)
+        })
+
+        app.get('/booking', async (req, res) =>
+        {
+            const email = req.query.email;
+            const query = { buyerEmail: email }
+            const user = await bookingsCollection.find(query).toArray();
+            res.send(user)
+        })
+
+        app.post('/advertise', async (req, res) =>
+        {
+            const advertise = req.body;
+            const result = await advertiseCollection.insertOne(advertise);
+            res.send(result)
+        })
+
         app.post('/users', async (req, res) =>
         {
             const user = req.body;
@@ -73,12 +111,44 @@ async function run(){
             res.send(result)
         })
 
+        app.delete('/users/:id', async (req, res) =>
+        {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(query);
+            res.send(result)
+        })
+
+        app.put('/users/:id', async (req, res) =>
+        {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    role: 'verify'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
         app.get('/users', async (req, res) =>
         {
-            const query = {};
-            const users = await usersCollection.find(query).toArray();
-            res.send(users)
+            const buyer = req.query.buyer;
+            const seller = req.query.seller;
+            const sellerQuery = { user: seller }
+            const allSeller = await usersCollection.find(sellerQuery).toArray();
+            const buyerQuery = { user: buyer }
+            const allBuyer = await usersCollection.find(buyerQuery).toArray();
+            res.send({ allBuyer, allSeller })
         })
+
+        // app.get('/users', async (req, res) => {
+        //     const query = {};
+        //     const users = await usersCollection.find(query).toArray();
+        //     res.send(users)
+        // })
 
         app.get('/users/admin/:email', async (req, res) =>
         {
@@ -102,7 +172,7 @@ async function run(){
             const query = { email }
             const users = await usersCollection.findOne(query);
             res.send({ isBuyer: users?.user === 'Buyer' })
-        })    
+        })
 
 
         app.get('/jwt', async (req, res) =>
@@ -118,7 +188,7 @@ async function run(){
         })
 
     }
-    finally{
+    finally {
 
     }
 }
