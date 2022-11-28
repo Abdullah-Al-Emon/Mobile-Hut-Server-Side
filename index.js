@@ -49,7 +49,7 @@ async function run(){
         app.get('/product/:id', async (req, res) => {
 
         })
-        
+
 
         app.get('/product', async (req, res) =>
         {
@@ -103,6 +103,7 @@ async function run(){
             const users = await usersCollection.findOne(query);
             res.send({ isBuyer: users?.user === 'Buyer' })
         })
+        
 
 
 
