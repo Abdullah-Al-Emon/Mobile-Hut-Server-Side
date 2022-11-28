@@ -46,8 +46,23 @@ async function run(){
             res.send(categories)
         })
 
-        app.get('/category/:id', async (req, res) => {
+        app.get('/product/:id', async (req, res) => {
 
+        })
+
+        app.get('/product', async (req, res) =>
+        {
+            const email = req.query.email;
+            const query = {sellerEmail: email }
+            const user = await productsCollection.find(query).toArray();
+            res.send(user)
+        })
+
+        app.post('/product', async (req, res) =>
+        {
+            const user = req.body;
+            const result = await productsCollection.insertOne(user);
+            res.send(result)
         })
 
         app.post('/users', async (req, res) =>
@@ -56,6 +71,39 @@ async function run(){
             const result = await usersCollection.insertOne(user);
             res.send(result)
         })
+
+        app.get('/users', async (req, res) =>
+        {
+            const query = {};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users)
+        })
+
+        app.get('/users/admin/:email', async (req, res) =>
+        {
+            const email = req.params.email;
+            const query = { email }
+            const users = await usersCollection.findOne(query);
+            res.send({ isAdmin: users?.user === 'Admin' })
+        })
+
+        app.get('/users/seller/:email', async (req, res) =>
+        {
+            const email = req.params.email;
+            const query = { email }
+            const users = await usersCollection.findOne(query);
+            res.send({ isSeller: users?.user === 'Seller' })
+        })
+
+        app.get('/users/buyer/:email', async (req, res) =>
+        {
+            const email = req.params.email;
+            const query = { email }
+            const users = await usersCollection.findOne(query);
+            res.send({ isBuyer: users?.user === 'Buyer' })
+        })
+
+
 
         app.get('/jwt', async (req, res) =>
         {
