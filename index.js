@@ -105,7 +105,6 @@ async function run(){
         })    
 
 
-
         app.get('/jwt', async (req, res) =>
         {
             const email = req.query.email;
