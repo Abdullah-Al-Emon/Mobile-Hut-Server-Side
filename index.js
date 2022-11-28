@@ -45,6 +45,7 @@ async function run(){
             const categories = await categoryCollection.find(query).toArray()
             res.send(categories)
         })
+        
 
         app.get('/product/:id', async (req, res) => {
 
