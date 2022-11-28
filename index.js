@@ -102,8 +102,7 @@ async function run(){
             const query = { email }
             const users = await usersCollection.findOne(query);
             res.send({ isBuyer: users?.user === 'Buyer' })
-        })
-        
+        })    
 
 
 
