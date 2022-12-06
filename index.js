@@ -67,13 +67,13 @@ async function run()
             res.send(user)
         })
 
-        app.get('/products', async (req, res) =>
+        app.get('/pro', async (req, res) =>
         {
             const query = {
                 advertise: true, 
                 paid: false
             }
-            console.log("",query)
+            // console.log("",query)
             const advertise = await productsCollection.find(query).toArray();
             res.send(advertise)
         })
