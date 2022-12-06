@@ -59,7 +59,7 @@ async function run()
         })
 
 
-        app.get('/product', verifyJWT, async (req, res) =>
+        app.get('/product', async (req, res) =>
         {
             const email = req.query.email;
             const query = { sellerEmail: email }
@@ -67,10 +67,36 @@ async function run()
             res.send(user)
         })
 
+        app.get('/products', async (req, res) =>
+        {
+            const query = {
+                advertise: true, 
+                paid: false
+            }
+            console.log("",query)
+            const advertise = await productsCollection.find(query).toArray();
+            res.send(advertise)
+        })
+
         app.post('/product', async (req, res) =>
         {
             const user = req.body;
             const result = await productsCollection.insertOne(user);
+            res.send(result)
+        })
+
+        app.put('/product/:id', async (req, res) =>
+        {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    advertise: true,
+                    paid: false
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updateDoc, options)
             res.send(result)
         })
 
@@ -93,6 +119,14 @@ async function run()
         {
             const email = req.query.email;
             const query = { buyerEmail: email }
+            const user = await bookingsCollection.find(query).toArray();
+            res.send(user)
+        })
+
+        app.get("/bookings", async(req, res) => {
+            const email = req.query.email;
+            const query = {sellerEmail: email}
+            console.log("a",query)
             const user = await bookingsCollection.find(query).toArray();
             res.send(user)
         })
