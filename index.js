@@ -125,21 +125,14 @@ async function run()
             res.send(user)
         })
 
-        app.get('/bookings/:id', async(req, res) => {
+        app.get('/booking/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const booking = await bookingsCollection.findOne(query);
             res.send(booking)
         })
 
-        app.get("/bookings", async(req, res) => {
-            const email = req.query.email;
-            const query = {sellerEmail: email}
-            console.log("a",query)
-            const user = await bookingsCollection.find(query).toArray();
-            res.send(user)
-        })
-
+        
         app.post('/create-payment-intent', async (req, res) => {
             const booking = req.body;
             const price = booking.price;
@@ -156,7 +149,7 @@ async function run()
                 clientSecret: paymentIntent.client_secret,
             })
         })
-
+        
         app.post('/payments', async (req, res) => {
             const payment = req.body;
             const result = await paymentsCollection.insertOne(payment);
@@ -174,6 +167,14 @@ async function run()
             const productResult = await productsCollection.updateOne(filters, updatedDoc)
             const updatedResult = await bookingsCollection.updateOne(filter, updatedDoc)
             res.send(result)
+        })
+        
+        app.get("/payments", async(req, res) => {
+            const email = req.query.email;
+            const query = {sellerEmail: email}
+            console.log(query)
+            const user = await paymentsCollection.find(query).toArray();
+            res.send(user)
         })
 
         app.post('/advertise', async (req, res) =>
